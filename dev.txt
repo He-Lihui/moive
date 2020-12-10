@@ -1,1 +1,6 @@
-这是一个开发版本
+// 将远程仓库的代码拉取到本地
+ git pull 
+
+ git add .
+ git commit -m "/****/"
+ git push

@@ -4,7 +4,10 @@ import router from './router'
 import store from './store'
 
 Vue.config.productionTip = false
-
+import VueLazyLoda from 'vue-lazyload';
+Vue.use(VueLazyLoda,{
+  loading: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2446154838,619139325&fm=26&gp=0.jpg",
+})
 new Vue({
   router,
   store,

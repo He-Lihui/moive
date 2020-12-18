@@ -40,7 +40,7 @@ export default {
         display: flex;
         align-items: center;
         li {
-            margin-top: -15px;
+            margin-top: 2px;
             flex: 1;
             height: 43px;
             list-style: none;

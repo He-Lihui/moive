@@ -1,12 +1,12 @@
 <template>
     <div class="detail">
         <div class="img">
-            <img v-lazy="film.poster" />
+            <img v-lazy="film.poster"/>
         </div>
         <div class="detail-wrapper">
-            <div class="name-list"> <span class="file-name">{{film.name}}</span>
-                 <span class="type">{{film.filmType.name}}</span>
-                 <span class="grade"> {{film.grade}}</span>
+            <div class="name-list"> <span class="film-name">{{film.name}}</span>
+                 <!-- <span class="type">{{film.item.name}}</span> -->
+                 <span class="grade"> {{film.grade}} 分</span>
             </div>
             <div class="text">{{film.category}}</div>
             <div class="text">{{film.premiereAt | parsePremiereAt}}上映</div>
@@ -15,10 +15,23 @@
                 {{film.synopsis}}
             </div>
         </div>
-        <div>
-            <Swiper :key="'actors_' + film.actors.length">
-                <div  v-for="(item,index) in film.actors" :key="index">
-                    <img :src="item.avatarAddress" alt="">
+        <div class="pic-area">
+            <div class="title-bar"><span>演职人员</span></div>
+            <Swiper :key="'actors_' + film.actors.length" class="pic-list">
+                <div class="swiper-slide"  v-for="(item,index) in film.actors" :key="index">
+                    <img v-lazy="item.avatarAddress" alt="">
+                    <div class="avatar-info">
+                     <p>{{item.name}}</p>   
+                     <p>{{item.role}}</p>
+                    </div>
+                </div>
+            </Swiper>
+        </div>
+         <div class="pic-area">
+            <div class="title-bar"><span>剧照</span></div>
+            <Swiper :key="'actors_' + film.actors.length" class="pic-list">
+                <div class="swiper-slide"  v-for="(item,index) in film.actors" :key="index">
+                    <img v-lazy="item.photos" alt="">
                 </div>
             </Swiper>
         </div>
@@ -32,7 +45,9 @@ import Swiper from '@/components/Swiper'
 export default {
     data(){
         return {
-            film:{}
+            film:{
+                actors:[]
+            }
         }
     },
     async mounted(){
@@ -46,7 +61,16 @@ export default {
     },
     components :{
         Swiper
+    },
+    created(){
+        //  通知app.vue移除底部菜单
+        this.eventBus.$emit('footernav',false)
+    },
+    beforeDestroy(){
+        // 通知 app 回复底部菜单
+        this.eventBus.$emit('footernav',true)
     }
+
 }
 </script>
 
@@ -54,18 +78,42 @@ export default {
 .detail {
     .img {
         width: 100%;
-        height: 260px;
+        height: 220px;
 
         img {
             width: 100%;
             height: 100%;
         }
     }
+    .pic-area{
+        .pic-list{
+            padding-left: 15px;
+
+            .swiper-slide{
+                width: 80px;
+                img{
+                    width: 80px;
+                    height: 113px;
+                }
+                .avatar-info{
+                    text-align: center;
+                    font-size: 13px;
+                    color: #797d82;
+                    margin-top: 4px;
+                }
+            }
+        }
+        .title-bar{
+            width: 100%;
+            padding: 15px;
+        }
+    }
+    
     .detail-wrapper{
         padding: 16px 20px;
 
         .name-list{
-            .file-name{
+            .film-name{
                  color: #191a1b;
                  font-size: 18px;
                  height: 24px;

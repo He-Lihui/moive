@@ -1,36 +1,48 @@
 <template>
-    <div class="list">
+    <div class="list scroll" :style="{height:height + 'px'}">
         <Loading v-if="loading"></Loading>
         <!-- 展示数据 -->
-        <div class="item" v-for="(item,index) in list" :key="index" @click="goDetail(item.filmId)">
-            <div class="left">
-                <img v-lazy="item.poster"/>
-            </div>
-            <div class="middle">
-                <div>{{item.name}}
-                    <span class="flim-item">{{item.item.name}}</span>
+        <div>
+               <div class="item" v-for="(item,index) in data" :key="index" @click="goDetail(item.filmId)">
+                <div class="left">
+                    <img v-lazy="item.poster"/>
                 </div>
-                <div>
-                    <span v-if="type ===1">观众评分 </span>
-                    <span class="grade">{{item.grade}}</span>
+                <div class="middle">
+                    <div>{{item.name}}
+                        <span class="flim-item">{{item.item.name}}</span>
+                    </div>
+                    <div>
+                        <span v-if="type ===1">观众评分 </span>
+                        <span class="grade">{{item.grade}}</span>
+                    </div>
+                    <div>主演：{{item.actors | parseActors}}</div>
+                    <div>{{item.nation}}| {{item.runtime}}分钟</div>
                 </div>
-                <div>主演：{{item.actors | parseActors}}</div>
-                <div>{{item.nation}}| {{item.runtime}}分钟</div>
-            </div>
-            <div class="right">
-                <span v-if="type == 1">购票</span>
-                <span v-else>预购</span>
+                <div class="right">
+                    <span v-if="type == 1">购票</span>
+                    <span v-else>预购</span>
+                </div>
             </div>
         </div>
+     
     </div>
 </template>
 
 <script>
 import Loading from '@/components/Loading'
+import BScroll from 'better-scroll'
+//  导入请求的方法
+import {nowPlayingListData , comingSoonUriListData} from "@/api/api";
 export default {
     data(){
         return {
-            loading :true
+            loading :true,
+            height:0,
+            bs: null,  // 用于保存实例结果
+            pageNum:1,
+            flag : true,
+            data:[]  // 用于数据拼接
+
         }
     },
      props :['list',
@@ -41,11 +53,41 @@ export default {
      },
     //  判断数据是否获取到 ，获取到之后就去除loading组件
      created(){
-         if( this.list.length > 0 ){
+        //  进入界面后需要将父传子的数据list转交给data
+        this.data = this.list
+         if( this.data.length > 0 ){
              this.loading = false
          }else{
              this.loading = true
          }
+     },
+     mounted(){
+         this.height = document.documentElement.clientHeight - 140
+     },
+     updated(){
+          this.bs = new BScroll('.scroll',{
+                // 激活上滑动的事件监听
+                pullUpLoad: true,
+                // 激活下滑的事件监听
+                pullDownRefresh: true,
+                // 默认情况下使用bs后，它会禁止浏览器的点击事件
+                click: true
+         });
+        // 上拉刷新
+        this.bs.on('pullingUp', () => {
+            console.log('上拉刷新')
+            this.getData()
+            // 获取数据
+            //本次pullup动作已经完成，继续准备下一次pullup
+            this.bs.finishPullUp()
+        })
+        this.bs.on('pullingDown', () => {
+            console.log('下拉刷新')
+            this.getData()
+            // 获取数据
+            //本次pulldown动作已经完成，继续准备下一次pulldown
+            this.bs.finishPullDown()
+        })
      },
      filters :{
          parseActors :function(value){
@@ -62,6 +104,23 @@ export default {
             this.$router.push({
                 name: 'detail' ,params :{filmId}
             })
+         },
+         getData: async function(){
+            if(this.flag){
+                    this.pageNum ++
+                if(this.type == 1){
+                    // 即将上映
+                    var ret = await nowPlayingListData(this.pageNum)
+                }else{
+                    var ret = await comingSoonUriListData(this.pageNum)
+
+                }
+                if(ret.data.data.films.length < 20){
+                    this.flag = false
+                }
+                //  将数据新增到列表中去
+                this.data = this.data.concat(ret.data.data.films)
+            }
          }
      }
 
@@ -143,5 +202,8 @@ export default {
             }
         }
     }
+}
+.scroll{
+    overflow: hidden;
 }
 </style>

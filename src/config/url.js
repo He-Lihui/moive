@@ -4,3 +4,5 @@ export const nowPlayingListUri = "gateway?cityId=620100&pageSize=10&type=1&k=990
 export const comingSoonListUri = "gateway?cityId=620100&pageSize=10&type=2&k=4626549&pageNum="
 
 export const moiveDetailUri = "gateway?k=8742335&filmId="
+
+export const cityListUri = "gateway?k=3233761"

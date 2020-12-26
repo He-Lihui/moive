@@ -19,7 +19,7 @@ export default {
     this.eventBus.$on('footernav', (mark) => {
         this.is_show = mark
     })
-  }
+  } 
 }
 </script>
 <style lang="scss">
